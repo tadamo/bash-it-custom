@@ -30,10 +30,6 @@ minishift-start() {
     set +x
 }
 
-minishift-open() {
-    open "https://$(minishift ip):8443"
-}
-
 minishift-systemadmin-login() {
     oc login -u system:admin "https://$(minishift ip):8443"
 }
