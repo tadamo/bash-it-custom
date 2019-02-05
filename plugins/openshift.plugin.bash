@@ -14,6 +14,6 @@ oc-delete-all() {
 
 oc-tools-bash() {
     oc create -f https://raw.githubusercontent.com/tadamo/dockerfiles/master/tools/tools.yaml
-    until $(oc get pod tools &> /dev/null); do sleep 1; done
+    oc wait --for=condition=Ready pod/tools
     oc exec -it tools -- bash
 }
