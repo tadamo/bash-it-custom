@@ -22,18 +22,18 @@ minishift-start() {
 
     minishift start
 
-    minishift ip --set-static
-
     minishift status
     oc login -u system:admin
+    oc create user "cluster-admin"
+    oc adm policy add-cluster-role-to-user cluster-admin cluster-admin
     oc get pods --all-namespaces
     set +x
 }
 
-minishift-systemadmin-login() {
-    oc login -u system:admin "https://$(minishift ip):8443"
+minishift-cluster-admin-login() {
+    oc login --insecure-skip-tls-verify -u cluster-admin -p cluster-admin "https://$(minishift ip):8443"
 }
 
 minishift-developer-login() {
-    oc login -u developer "https://$(minishift ip):8443"
+    oc login --insecure-skip-tls-verify -u developer -p foo "https://$(minishift ip):8443"
 }
