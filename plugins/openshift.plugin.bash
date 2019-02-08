@@ -12,29 +12,40 @@ oc-login() {
     security_cmd_flags+=(-s "$OPENSHIFT_HOST")
     security_cmd_flags+=(-D "appplication password")
     security_cmd_flags+=(-w)
-    set +x
-    oc \
-        login \
-        -u "$USER" \
-        -p $(security find-generic-password "${security_cmd_flags[@]}") \
-        "https://$OPENSHIFT_HOST"
+    (
+        set +x
+        oc login \
+            -u "$USER" \
+            -p $(security find-generic-password "${security_cmd_flags[@]}") \
+            "https://$OPENSHIFT_HOST"
+    )
+
     oc config current-context
 }
 
 # NOTE: by default, OpenShift identity provider allows any password.
 oc-create-cluster-admin() {
-    oc login -u system:admin
-    oc create user "cluster-admin"
-    oc adm policy add-cluster-role-to-user cluster-admin cluster-admin
+    (
+        set -x
+        oc login -u system:admin
+        oc create user "cluster-admin"
+        oc adm policy add-cluster-role-to-user cluster-admin cluster-admin
+    )
 }
 
 oc-delete-all() {
-    oc delete "$(oc get all -o name)"
-    oc delete "$(oc get configmap -o name)"
+    (
+        set -x
+        oc delete "$(oc get all -o name)"
+        oc delete "$(oc get configmap -o name)"
+    )
 }
 
 oc-tools-bash() {
-    oc create -f https://raw.githubusercontent.com/tadamo/dockerfiles/master/tools/tools.yaml
-    oc wait --for=condition=Ready pod/tools
-    oc exec -it tools -- bash
+    (
+        set -x
+        oc create -f https://raw.githubusercontent.com/tadamo/dockerfiles/master/tools/tools.yaml
+        oc wait --for=condition=Ready pod/tools
+        oc exec -it tools -- bash
+    )
 }
