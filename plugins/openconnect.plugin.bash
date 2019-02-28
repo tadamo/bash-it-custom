@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function start-vpn-background() {
+start-vpn-background() {
     sudo openconnect \
         --background \
         --syslog \
