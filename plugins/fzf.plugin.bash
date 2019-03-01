@@ -3,7 +3,14 @@
 fed() {
     local dir
     dir=$(find ${1:-.} -path '*/\.*' -prune \
-        -o -type d -print 2> /dev/null | fzf +m)
+        -o -type d -print 2> /dev/null | fzf)
+    [[ -n "$dir" ]] && ${EDITOR:-vim} "${dir[@]}"
+}
+
+# fuzzy find bitbucket repo directories
+fbb() {
+    local dir
+    dir=$(find "$BITBUCKET_HOME" -type d -maxdepth 2 -mindepth 2 | fzf)
     [[ -n "$dir" ]] && ${EDITOR:-vim} "${dir[@]}"
 }
 
@@ -13,7 +20,7 @@ drb() {
         docker images \
             --format "{{.Repository}}:{{.Tag}}" \
             --filter="dangling=false" \
-            --digests=true | sort -u | fzf +m
+            --digests=true | sort -u | fzf
     )
     [[ -n "$docker_image" ]] &&
         docker run \
@@ -31,7 +38,7 @@ oc-project() {
             projects \
             -o go-template \
             --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' |
-            sort -u | fzf +m
+            sort -u | fzf
     )
     [[ -n "$project" ]] &&
         oc project "$project"
