@@ -13,9 +13,8 @@ fi
 if [ -e $ORACLE_HOME ]; then
     mypath=${mypath}:$ORACLE_HOME
 fi
-#mypath=${mypath}:/opt/local/libexec/perl5.16
 
-if [ `command -v brew` ]; then
+if [ $(command -v brew) ]; then
     if [ -d $(brew --prefix coreutils)/libexec/gnubin ]; then
         mypath=${mypath}:$(brew --prefix coreutils)/libexec/gnubin
     fi
