@@ -1,11 +1,25 @@
 #!/usr/bin/env bash
 
-function clear_and_watch {
+find-and-replace-text-in-files() {
+    # https://stackoverflow.com/questions/4767396/linux-command-how-to-find-only-text-files
+    # https://stackoverflow.com/questions/5119946/find-exec-with-multiple-commands
+    (
+        set -x
+        find \
+            . \
+            -type f \
+            -not -iwholename '*.git*' \
+            -exec grep -Iq . {} \; \
+            -exec sed -i '' s/"$1"/"$2"/g {} +
+    )
+}
+
+clear_and_watch() {
     cat /dev/null > $1
     tail -f $1
 }
 
-function rpbcopy {
+rpbcopy() {
     if [[ -z $SSH_CONNECTION ]]; then
         echo "$*" | tr -d '\r|\f|\n' | pbcopy
     else
@@ -13,8 +27,8 @@ function rpbcopy {
     fi
 }
 
-function fp {
-    local fp=`readlink -f "$*"`
+fp() {
+    local fp=$(readlink -f "$*")
     echo $fp
     rpbcopy $fp
 }
