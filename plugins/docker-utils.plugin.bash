@@ -71,7 +71,10 @@ docker-oc() {
 }
 
 docker-oc-login() {
-    docker login -u "$USER" -p "$(oc whoami -t)" "$docker_registry"
+    (
+        set -x
+        oc whoami -t | docker login -u "$USER" --password-stdin "$docker_registry"
+    )
 }
 
 docker-socat() {
@@ -97,4 +100,15 @@ docker-cookiecutter-perl-mojo-docker() {
 
 docker-cookiecutter-docker() {
     docker-cookiecutter-template "docker"
+}
+
+docker-check-remote-port() {
+    (
+        set -x
+        docker run \
+            --rm \
+            -it \
+            tadamo/tools:latest \
+            bash -c "nc -zv $*"
+    )
 }
