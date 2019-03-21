@@ -14,7 +14,7 @@ new-k8s-session() {
     # Find all session directories and delete the ones no longer needed.
     old_session_pids=$(find "$KUBE_SESSION_DIRECTORY" -type d -maxdepth 1 -mindepth 1 | sed "s|$KUBE_SESSION_DIRECTORY/||")
     for pid in $old_session_pids; do
-        if ! kill -0 $pid > /dev/null 2>&1; then
+        if ! kill -0 "$pid" > /dev/null 2>&1; then
             rm -rf "${KUBE_SESSION_DIRECTORY:?}/$pid"
         fi
     done
