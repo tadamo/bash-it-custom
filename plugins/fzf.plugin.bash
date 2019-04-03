@@ -23,12 +23,15 @@ drb() {
             --digests=true | sort -u | fzf
     )
     [[ -n "$docker_image" ]] &&
-        docker run \
-            -it \
-            --rm \
-            --entrypoint=sh \
-            "${docker_image[@]}" \
-            -c 'bash || sh'
+        (
+            set -x
+            docker run \
+                -it \
+                --rm \
+                --entrypoint=sh \
+                "${docker_image[@]}" \
+                -c 'bash || sh'
+        )
 }
 
 oc-project() {
@@ -41,5 +44,32 @@ oc-project() {
             sort -u | fzf
     )
     [[ -n "$project" ]] &&
-        oc project "$project"
+        (
+            set -x
+            oc project "$project"
+        )
+}
+
+dco() {
+    command="$1"
+    shift
+    local service
+    service=$(
+        docker-compose --log-level ERROR config |
+            yq -crM '.services | keys[]' |
+            sort -u | fzf
+    )
+    [[ -n "$service" ]] &&
+        (
+            set -x
+            docker-compose "$command" "$service" "$@"
+        )
+}
+
+dco-run() {
+    dco "run" "$@"
+}
+
+dco-up() {
+    dco "up" "$@"
 }
