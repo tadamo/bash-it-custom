@@ -54,3 +54,70 @@ oc-tools-bash() {
 oc-set-iterm2-title() {
     iterm2-title "$(oc config current-context)"
 }
+
+oc-apply-default-network-policies() {
+    read -r -d '' yaml << 'EOF'
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "items": [{
+            "apiVersion": "networking.k8s.io/v1",
+            "kind": "NetworkPolicy",
+            "metadata": {
+                "name": "deny-from-all"
+            },
+            "spec": {
+                "podSelector": {},
+                "policyTypes": [
+                    "Ingress"
+                ]
+            }
+        },
+        {
+            "apiVersion": "networking.k8s.io/v1",
+            "kind": "NetworkPolicy",
+            "metadata": {
+                "name": "allow-from-same-namespace"
+            },
+            "spec": {
+                "ingress": [{
+                    "from": [{
+                        "podSelector": {}
+                    }]
+                }],
+                "podSelector": {},
+                "policyTypes": [
+                    "Ingress"
+                ]
+            }
+        },
+        {
+            "apiVersion": "networking.k8s.io/v1",
+            "kind": "NetworkPolicy",
+            "metadata": {
+                "name": "allow-from-default-namespace"
+            },
+            "spec": {
+                "ingress": [{
+                    "from": [{
+                        "namespaceSelector": {
+                            "matchLabels": {
+                                "name": "default"
+                            }
+                        }
+                    }]
+                }],
+                "podSelector": {},
+                "policyTypes": [
+                    "Ingress"
+                ]
+            }
+        }
+    ]
+}
+EOF
+    (
+        set -x
+        echo "$yaml" | oc apply -f -
+    )
+}
