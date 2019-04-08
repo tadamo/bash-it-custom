@@ -7,4 +7,7 @@ oc-new-session() {
     oc-login
     docker-oc-login
     oc-project
+    if [[ "$OSTYPE" =~ "darwin" ]]; then
+        oc-set-iterm2-title
+    fi
 }

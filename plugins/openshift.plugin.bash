@@ -49,3 +49,8 @@ oc-tools-bash() {
         oc exec -it tools -- bash
     )
 }
+
+# Set the terminal tab title to the config context
+oc-set-iterm2-title() {
+    iterm2-title "$(oc config current-context)"
+}
