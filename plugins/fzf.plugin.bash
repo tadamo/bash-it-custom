@@ -50,6 +50,22 @@ oc-project() {
         )
 }
 
+oc-show-secret() {
+    local secret
+    secret=$(
+        oc get \
+            secrets \
+            -o go-template \
+            --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' |
+            sort -u | fzf
+    )
+    [[ -n "$secret" ]] &&
+        (
+            set -x
+            oc get secret "$secret" -o json | jq -crM '.data | keys[] as $k | "\($k): \(.[$k] | @base64d)"'
+        )
+}
+
 dco() {
     command="$1"
     shift
