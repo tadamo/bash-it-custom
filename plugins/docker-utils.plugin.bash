@@ -112,3 +112,70 @@ docker-check-remote-port() {
             bash -c "nc -zv $*"
     )
 }
+
+docker-sqlplus-trace() {
+    local sqlplus_config="${sqlplus_config:-./.sqlplus}"
+    if [ -f "$sqlplus_config" ]; then
+        source "$sqlplus_config"
+    fi
+
+    given_sql="$*"
+    local sqlplus_sql="${given_sql:-$sqlplus_sql}"
+    local sqlplus_sql="${sqlplus_sql:-SELECT 1 FROM DUAL;}"
+    sqlplus_docker_image="${sqlplus_image:-store/oracle/database-instantclient:12.2.0.1}"
+
+    echo "sqlplus_docker_image: $sqlplus_docker_image"
+    echo "sqlplus_sql: $sqlplus_sql"
+    echo "sqlplus_host: $sqlplus_host"
+    echo "sqlplus_service: $sqlplus_service"
+    echo "sqlplus_user: $sqlplus_user"
+
+    if [ -z ${sqlplus_host+x} ]; then
+        printf "\n sqlplus_host is unset. \n"
+        return
+    elif [ -z ${sqlplus_service+x} ]; then
+        printf "\n sqlplus_service is unset. \n"
+        return
+    elif [ -z ${sqlplus_user+x} ]; then
+        printf "\n sqlplus_user is unset. \n"
+        return
+    elif [ -z ${sqlplus_password+x} ]; then
+        printf "\n sqlplus_password is unset. \n"
+        return
+    fi
+
+    docker pull "$sqlplus_docker_image"
+    sqlplus="
+        --------------------------------------------
+        set serveroutput on
+        set pagesize 0
+        set heading off
+        set feedback off
+        set termout off
+        set autotrace traceonly;
+
+        variable n number
+        exec :n := dbms_utility.get_time
+        --------------------------------------------
+        --------------------------------------------
+
+        $sqlplus_sql
+
+        --------------------------------------------
+        --------------------------------------------
+        exec :n := (dbms_utility.get_time - :n)/100
+        exec dbms_output.put_line('sqlplus elapsed seconds: ' || :n)
+        exit;
+        --------------------------------------------
+    " &&
+        docker run \
+            -it \
+            --rm \
+            -e "SQLPLUS=$sqlplus" \
+            -e "HOST=$sqlplus_host" \
+            -e "SERVICE=$sqlplus_service" \
+            -e "USER=$sqlplus_user" \
+            -e "PASSWORD=$sqlplus_password" \
+            "$sqlplus_docker_image" \
+            sh -c 'set -e; echo "$SQLPLUS" | sqlplus -L -S -NOLOGINTIME "$USER/$PASSWORD@$HOST/$SERVICE"'
+}
