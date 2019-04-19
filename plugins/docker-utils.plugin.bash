@@ -122,7 +122,7 @@ docker-sqlplus-trace() {
     given_sql="$*"
     local sqlplus_sql="${given_sql:-$sqlplus_sql}"
     local sqlplus_sql="${sqlplus_sql:-SELECT 1 FROM DUAL;}"
-    sqlplus_docker_image="${sqlplus_image:-store/oracle/database-instantclient:12.2.0.1}"
+    sqlplus_docker_image="${sqlplus_docker_image:-store/oracle/database-instantclient:12.2.0.1}"
 
     echo "sqlplus_docker_image: $sqlplus_docker_image"
     echo "sqlplus_sql: $sqlplus_sql"
