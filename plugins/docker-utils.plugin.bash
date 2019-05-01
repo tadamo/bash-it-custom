@@ -1,5 +1,24 @@
 #!/usr/bin/env bash
 
+# Login to Docker HUB, use Mac KeyChain to get password.
+docker-hub-login() {
+    if [[ ! "$OSTYPE" =~ "darwin" ]]; then
+        (echo >&2 "Only works on Mac OS")
+        return
+    fi
+
+    security_cmd_flags=()
+    security_cmd_flags+=(-a "$USER")
+    security_cmd_flags+=(-s "hub.docker.com")
+    security_cmd_flags+=(-D "appplication password")
+    security_cmd_flags+=(-w)
+    (
+        set +x
+        security find-generic-password "${security_cmd_flags[@]}" |
+            docker login -u "$USER" --password-stdin
+    )
+}
+
 docker-dir-size-report() {
     docker pull debian
     docker run \
