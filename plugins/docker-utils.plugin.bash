@@ -132,6 +132,20 @@ docker-check-remote-port() {
     )
 }
 
+# Connect example:
+#  docker-sqlplus "username/passowrd@db-host.example.com:1521/db-service-name"
+docker-sqlplus() {
+    sqlplus_docker_image="${sqlplus_docker_image:-store/oracle/database-instantclient:12.2.0.1}"
+    (
+        set -x
+        docker run \
+            -it \
+            --rm \
+            "$sqlplus_docker_image" \
+            sh -c "sqlplus $*"
+    )
+}
+
 docker-sqlplus-trace() {
     local sqlplus_config="${sqlplus_config:-./.sqlplus}"
     if [ -f "$sqlplus_config" ]; then
