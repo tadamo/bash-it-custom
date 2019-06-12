@@ -26,6 +26,7 @@ fi
 
 export HOMEBREW_FORCE_BREWED_CURL=1
 mypath=${mypath}:/usr/local/opt/curl/bin
+mypath=${mypath}:/usr/local/opt/grep/libexec/gnubin
 
 mypath=${mypath}:/opt/local/bin
 mypath=${mypath}:/opt/local/sbin

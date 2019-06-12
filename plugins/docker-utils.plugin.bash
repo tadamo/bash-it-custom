@@ -14,8 +14,27 @@ docker-hub-login() {
     security_cmd_flags+=(-w)
     (
         set +x
-        security find-generic-password "${security_cmd_flags[@]}" |
+        /usr/bin/security find-generic-password "${security_cmd_flags[@]}" |
             docker login -u "$USER" --password-stdin
+    )
+}
+
+# Login to RedHat Registry, use Mac KeyChain to get password.
+docker-redhat-login() {
+    if [[ ! "$OSTYPE" =~ "darwin" ]]; then
+        (echo >&2 "Only works on Mac OS")
+        return
+    fi
+
+    security_cmd_flags=()
+    security_cmd_flags+=(-a "$REDHAT_REGISTRY_USER")
+    security_cmd_flags+=(-s "registry.redhat.io")
+    security_cmd_flags+=(-D "appplication password")
+    security_cmd_flags+=(-w)
+    (
+        set -x
+        /usr/bin/security find-generic-password "${security_cmd_flags[@]}" |
+            docker login -u "$REDHAT_REGISTRY_USER" --password-stdin registry.redhat.io
     )
 }
 

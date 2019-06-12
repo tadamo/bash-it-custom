@@ -16,7 +16,7 @@ oc-login() {
         set +x
         oc login \
             -u "$USER" \
-            -p $(security find-generic-password "${security_cmd_flags[@]}") \
+            -p $(/usr/bin/security find-generic-password "${security_cmd_flags[@]}") \
             "https://$OPENSHIFT_HOST"
     )
 
