@@ -48,6 +48,14 @@ export SCM_THEME_PROMPT_PREFIX
 SCM_THEME_PROMPT_SUFFIX=''
 export SCM_THEME_PROMPT_SUFFIX
 
+KUBE_PS1_BINARY=oc
+KUBE_PS1_SYMBOL_USE_IMG=true
+KUBE_PS1_NS_ENABLE=false
+KUBE_PS1_SYMBOL_COLOR=blue
+KUBE_PS1_CTX_COLOR=blue
+KUBE_PS1_NS_COLOR=blue
+KUBE_PS1_CLUSTER_FUNCTION=__prompt_k8s_cluster_function
+
 ###############################################################################
 # HORIZONTAL BAR
 __prompt_horizontal_bar() {
@@ -114,20 +122,19 @@ __prompt_git() {
     return $((${#git_prompt}))
 }
 
-__prompt_k8s() {
-    if [ "$(command -v kubectl)" ]; then
-        k8s_current_context=$(kubectl config current-context 2> /dev/null)
-        if [ -z ${KUBECONFIG_CURRENT_SESSION_DIRECTORY+x} ]; then
-            k8s_session_icon='|-'
-        else
-            k8s_session_icon='|👤'
-        fi
-        printf "${blue}(☸|$k8s_current_context$k8s_session_icon)${reset_color}"
-        return $((${#k8s_current_context} + 2))
+__prompt_k8s_cluster_function() {
+    if [ -z ${KUBECONFIG_CURRENT_SESSION_DIRECTORY+x} ]; then
+        k8s_session_icon='|-'
     else
-        printf ""
-        return 0
+        k8s_session_icon='|👤'
     fi
+    echo "$1$k8s_session_icon"
+}
+
+__prompt_k8s() {
+    k8s_prompt=$(kube_ps1)
+    printf "$k8s_prompt"
+    return $((${#k8s_prompt}))
 }
 
 __prompt_session_line() {
