@@ -84,13 +84,14 @@ docker-perltidy-tree() {
 }
 
 docker-ub-perl-test() {
-    docker pull "$docker_registry/image-hub/ubol-perl-eas:1"
+    local docker_image="$docker_registry/ubi/perl-eas:1"
+    docker pull "$docker_image"
     docker run \
         -it \
         --rm \
         -v "$HOME/test:/test" \
         --workdir=/test \
-        "$docker_registry/image-hub/ubol-perl-eas:1" \
+        "$docker_image" \
         bash
 }
 
