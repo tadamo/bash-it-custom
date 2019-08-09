@@ -89,3 +89,7 @@ dco-run() {
 dco-up() {
     dco "up" "$@"
 }
+
+dco-build() {
+    dco "build" "$@"
+}

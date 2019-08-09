@@ -1,40 +1,17 @@
 #!/usr/bin/env bash
 
-# Login to Docker HUB, use Mac KeyChain to get password.
+# Using this instead.
+# https://github.com/docker/docker-credential-helpers
 docker-hub-login() {
-    if [[ ! "$OSTYPE" =~ "darwin" ]]; then
-        (echo >&2 "Only works on Mac OS")
-        return
-    fi
-
-    security_cmd_flags=()
-    security_cmd_flags+=(-a "$USER")
-    security_cmd_flags+=(-s "hub.docker.com")
-    security_cmd_flags+=(-D "appplication password")
-    security_cmd_flags+=(-w)
-    (
-        set +x
-        /usr/bin/security find-generic-password "${security_cmd_flags[@]}" |
-            docker login -u "$USER" --password-stdin
-    )
+    docker login
 }
-
-# Login to RedHat Registry, use Mac KeyChain to get password.
 docker-redhat-login() {
-    if [[ ! "$OSTYPE" =~ "darwin" ]]; then
-        (echo >&2 "Only works on Mac OS")
-        return
-    fi
-
-    security_cmd_flags=()
-    security_cmd_flags+=(-a "$REDHAT_REGISTRY_USER")
-    security_cmd_flags+=(-s "registry.redhat.io")
-    security_cmd_flags+=(-D "appplication password")
-    security_cmd_flags+=(-w)
+    docker login registry.redhat.io
+}
+docker-oc-login() {
     (
         set -x
-        /usr/bin/security find-generic-password "${security_cmd_flags[@]}" |
-            docker login -u "$REDHAT_REGISTRY_USER" --password-stdin registry.redhat.io
+        oc whoami -t | docker login -u "$USER" --password-stdin "$docker_registry"
     )
 }
 
@@ -107,13 +84,6 @@ docker-oc() {
         -e KUBECONFIG="/root/.kube/config" \
         "$docker_registry/image-hub/openshift-cli" \
         oc "$*"
-}
-
-docker-oc-login() {
-    (
-        set -x
-        oc whoami -t | docker login -u "$USER" --password-stdin "$docker_registry"
-    )
 }
 
 docker-socat() {
