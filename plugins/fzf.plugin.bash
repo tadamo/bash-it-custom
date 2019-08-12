@@ -7,8 +7,22 @@ fed() {
     [[ -n "$dir" ]] && ${EDITOR:-vim} "${dir[@]}"
 }
 
-# fuzzy find bitbucket repo directories
-fbb() {
+# fuzzy find bitbucket repo files and cat
+fb-cat() {
+    local file
+    file=$(find "$BITBUCKET_HOME" -type f | fzf)
+    [[ -n "$file" ]] && cat "$file"
+}
+
+# fuzzy find bitbucket repo directories and cd
+fb-cd() {
+    local dir
+    dir=$(find "$BITBUCKET_HOME" -type d -maxdepth 2 -mindepth 2 | fzf)
+    [[ -n "$dir" ]] && cd "$dir" || exit
+}
+
+# fuzzy find bitbucket repo directories and open editor
+fb-e() {
     local dir
     dir=$(find "$BITBUCKET_HOME" -type d -maxdepth 2 -mindepth 2 | fzf)
     [[ -n "$dir" ]] && ${EDITOR:-vim} "${dir[@]}"
