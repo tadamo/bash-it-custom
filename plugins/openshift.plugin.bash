@@ -55,6 +55,13 @@ oc-set-iterm2-title() {
     iterm2-title "$(oc config current-context)"
 }
 
+# List projects I created
+oc-my-projects() {
+    oc get projects -o json |
+        jq -crM ".items[] | select(.metadata.annotations.\"openshift.io/requester\"==\"$USER\")" |
+        jq -crM '.metadata | "  \(.name) - \(.annotations."openshift.io/display-name") - \(.annotations."openshift.io/description")"'
+}
+
 oc-apply-default-network-policies() {
     read -r -d '' yaml << 'EOF'
 {
