@@ -70,9 +70,7 @@ oc-show-pod-public-ip() {
         - name: show-pod-public-ip
           image: tadamo/tools:latest
           imagePullPolicy: Always
-          command:
-            - sleep
-            - "1000000"
+          command: ["show-public-ip-loop"]
           resources:
             requests:
               cpu: 5m
@@ -85,8 +83,7 @@ HEREDOC
         set -ex
         echo "$pod_yaml" | oc create -f -
         oc wait --for=condition=Ready pod/show-pod-public-ip
-        oc exec -it show-pod-public-ip -- bash -c 'pubip=$(curl -s https://ipinfo.io/ip) && echo $pubip && nslookup $pubip'
-        oc delete pod/show-pod-public-ip
+        oc logs -f show-pod-public-ip -c show-pod-public-ip
     )
 }
 
