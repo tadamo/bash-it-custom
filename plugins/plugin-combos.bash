@@ -11,3 +11,13 @@ oc-new-session() {
         oc-set-iterm2-title
     fi
 }
+
+oc-new-dev-session() {
+    new-k8s-session
+    oc-dev-login
+    docker-oc-dev-login
+    oc-project
+    if [[ "$OSTYPE" =~ "darwin" ]]; then
+        oc-set-iterm2-title
+    fi
+}

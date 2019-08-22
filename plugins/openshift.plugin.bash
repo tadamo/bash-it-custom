@@ -2,6 +2,8 @@
 
 # Login to OpenShift cluster, use Mac KeyChain to get password.
 oc-login() {
+    local login_host=${1:-$OPENSHIFT_HOST}
+
     if [[ ! "$OSTYPE" =~ "darwin" ]]; then
         (echo >&2 "Only works on Mac OS")
         return
@@ -9,18 +11,24 @@ oc-login() {
 
     security_cmd_flags=()
     security_cmd_flags+=(-a "$USER")
-    security_cmd_flags+=(-s "$OPENSHIFT_HOST")
+    security_cmd_flags+=(-s "$login_host")
     security_cmd_flags+=(-D "appplication password")
     security_cmd_flags+=(-w)
+
+    echo "Logging into $login_host..."
     (
         set +x
         oc login \
             -u "$USER" \
             -p $(/usr/bin/security find-generic-password "${security_cmd_flags[@]}") \
-            "https://$OPENSHIFT_HOST"
+            "https://$login_host"
     )
 
     oc config current-context
+}
+
+oc-dev-login() {
+    oc-login "$OPENSHIFT_DEV_HOST"
 }
 
 # NOTE: by default, OpenShift identity provider allows any password.
@@ -47,6 +55,38 @@ oc-tools-bash() {
         oc create -f https://raw.githubusercontent.com/tadamo/dockerfiles/master/tools/tools.yaml
         oc wait --for=condition=Ready pod/tools
         oc exec -it tools -- bash
+    )
+}
+
+oc-show-pod-public-ip() {
+    read -r -d '' pod_yaml << HEREDOC
+      ---
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: show-pod-public-ip
+      spec:
+        containers:
+        - name: show-pod-public-ip
+          image: tadamo/tools:latest
+          imagePullPolicy: Always
+          command:
+            - sleep
+            - "1000000"
+          resources:
+            requests:
+              cpu: 5m
+              memory: 10Mi
+            limits:
+              cpu: 10m
+              memory: 20Mi
+HEREDOC
+    (
+        set -ex
+        echo "$pod_yaml" | oc create -f -
+        oc wait --for=condition=Ready pod/show-pod-public-ip
+        oc exec -it show-pod-public-ip -- bash -c 'pubip=$(curl -s https://ipinfo.io/ip) && echo $pubip && nslookup $pubip'
+        oc delete pod/show-pod-public-ip
     )
 }
 

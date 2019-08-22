@@ -14,6 +14,12 @@ docker-oc-login() {
         oc whoami -t | docker login -u "$USER" --password-stdin "$docker_registry"
     )
 }
+docker-oc-dev-login() {
+    (
+        set -x
+        oc whoami -t | docker login -u "$USER" --password-stdin "$docker_dev_registry"
+    )
+}
 
 docker-dir-size-report() {
     docker pull debian
